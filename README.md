@@ -13,3 +13,14 @@ https://www.cnblogs.com/ywlaker/p/6113927.html#4407367
 
 针对上边原著作者加了自己的分析
 https://www.cnblogs.com/UncleWang001/articles/9669653.html
+
+
+CGI、FastCGI和PHP-FPM关系图解
+https://www.php.cn/php-weizijiaocheng-392861.html
+
+
+cgi、fastcgi、php-fpm的定义【最精简的解释】
+cgi:是服务器（Apache/nginx）与应用程序（php/java）之间数据交换的一种协议
+fastcgi:是cgi的优化版，更加高效（常驻型cgi）
+php-fpm:fpm(fastcgi process manager) fastcgi的实现 php的fastcgi进程管理器
+https://blog.csdn.net/li8483468/article/details/79668339
