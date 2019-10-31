@@ -28,3 +28,7 @@ fastcgi:是cgi的优化版，更加高效（常驻型cgi）
 php-fpm:fpm(fastcgi process manager) fastcgi的实现 php的fastcgi进程管理器
 
 https://blog.csdn.net/li8483468/article/details/79668339
+
+
+趁着作者的服务器还在，赶紧看完这篇文章
+https://www.xiebruce.top/606.html
