@@ -1,0 +1,29 @@
+
+以下描述在官方网站能找到
+ https://getcomposer.org/download/
+
+检测自己电脑上有没有安装过composer
+ composer -v
+
+
+针对没有没有安装过的同学们，来说安装下面步骤操作一遍
+
+   //下载安装脚本 － composer-setup.php － 到当前目录
+    php -r "copy('https://install.phpcomposer.com/installer', 'composer-setup.php');"
+    
+    //官方网站多了这个
+    php -r "if (hash_file('sha384', 'composer-setup.php') === 'a5c698ffe4b8e849a443b120cd5ba38043260d5c4023dbf93e1558871f1f07f58274fc6f4c93bcfd858c6bd0775cd8d1') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+    
+   //执行安装过程
+    php composer-setup.php
+    
+   //删除安装脚本
+    php -r "unlink('composer-setup.php');"
+    
+   //将命令添加到全局
+   sudo mv composer.phar /usr/local/bin/composer
+   
+   
+切到php项目目录下安装composer依赖
+ composer install
+ 
