@@ -15,11 +15,12 @@
 composer就是自动管理依赖的工具，你只要在你的项目中声明依赖哪些包，composer就会自动去下载，就这样。
 
 另外，composer还有一个自动生成autoload文件的便利功能。
-只需要将autoload文件添加到你项目的引导文件中：就能use使用包了
+只需要将autoload文件添加到你项目的引导文件中：这使得你可以很容易的使用第三方代码。
+例如：如果你的项目依赖 monolog，你就可以像这样开始使用这个类库，并且他们将被自动加载。
 
 require 'vendor/autoload.php';
 
-use Monolog\Logger;
+use Monolog\Logger;//这个use可能在new Logger('name')时编辑器会自动加上，不use我觉得有点怪怪的，感觉阅读跟踪不方便
 use Monolog\Handler\StreamHandler;
 
 // create a log channel
