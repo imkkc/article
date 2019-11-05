@@ -1,0 +1,43 @@
+
+文章出处 https://blog.csdn.net/fationyyk/article/details/70159416
+
+PHP在linux下的常用命令行
+
+1、PHP运行指定文件
+php -f  test.php (-f 可省略)
+
+
+2、命令行直接运行PHP代码 
+php -r "phpinfo();"    
+如果结果太长，还可以 php -r “phpinfo();” | less 分页展示
+
+php -r "echo '123';"
+
+
+3、交互模式运行PHP , control + c/z 或者 exit 退出交互模式
+php -a
+php > echo 2+3;
+5
+php > exit;
+
+
+4、PHP脚本作为shell脚本运行
+没有权限则切换到root用户 sudo su
+echo '#!/usr/bin/php\n<?php var_dump($argv); ?>' > phpscript
+注意，我们在该PHP脚本的第一行使用#!/usr/bin/php，就像在shell脚本中那样（/bin/bash）。第一行的#!/usr/bin/php告诉Linux命令行用 PHP 解释器来解析该脚本文件。
+确定phpscript 有可执行权限
+
+5、其他常用命令
+php -m 内置及Zend加载的模块
+
+php -i 等价于 phpinfo()
+
+php -i | grep php.ini 查看php配置文件加载路径
+php –ini 同上
+
+php -v 查看php版本
+php –version 同上
+
+php –re 查看是否安装相应的扩展 如 php –re gd
+
+
