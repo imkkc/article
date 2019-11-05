@@ -13,7 +13,23 @@
 什么是composer？
 在我们的项目中，可能用到别人的包，以前我们回去下载下来放到我们的项目中，在代码中再require，其实这是比较low的，比较麻烦
 composer就是自动管理依赖的工具，你只要在你的项目中声明依赖哪些包，composer就会自动去下载，就这样。
+
 另外，composer还有一个自动生成autoload文件的便利功能。
+只需要将autoload文件添加到你项目的引导文件中：就能use使用包了
+
+require 'vendor/autoload.php';
+
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+
+// create a log channel
+$log = new Logger('name');
+$log->pushHandler(new StreamHandler('./test.log', Logger::WARNING));
+
+// add records to the log
+$log->addWarning('Foo');
+$log->addError('Bar');
+
 
 2.依赖管理怎么用
 2.1 三个概念
