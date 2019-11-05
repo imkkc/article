@@ -1,29 +1,139 @@
 
-以下描述在官方网站能找到
+ 以下描述在官方网站能找到
  https://getcomposer.org/download/
 
-检测自己电脑上有没有安装过composer
+ 这个中文文档地址也不错
+ https://docs.phpcomposer.com/00-intro.html#Locally
+
+ 简书这篇文章也帮了我不少忙，通俗易懂，
+ https://www.jianshu.com/p/6146949387e9
+
+
+
+什么是composer？
+在我们的项目中，可能用到别人的包，以前我们回去下载下来放到我们的项目中，在代码中再require，其实这是比较low的，比较麻烦
+composer就是自动管理依赖的工具，你只要在你的项目中声明依赖哪些包，composer就会自动去下载，就这样。
+另外，composer还有一个自动生成autoload文件的便利功能。
+
+2.依赖管理怎么用
+2.1 三个概念
+包
+包就是一个文件夹，对项目的意义就是一个可以引用的组件，比如monolog
+
+composer
+composer其实就是一个phar文件，当做一个工具来使用，全局安装了的话就composer install这样用，没有全局安装就 php /path/to/composer.phar install这样用
+
+packgist
+我们需要一个存储包的中央仓库，这样只要告诉composer一个包的名字，composer就会从这个中央仓库去下载代码，https://packagist.org是 Composer 的主官方资源库。
+可以访问 packagist website (https://packagist.org/) (packagist.org)浏览和搜索资源包。
+
+2.2 两个文件
+如果你在你的项目中使用composer，会增加两个文件
+
+composer.json
+composer.lock
+.json记录的最重要的信息是项目依赖的包，但是，假设，你实际安装的某个依赖变化了，比如升级了，这就导致json文件与实际不符。
+.lock记录的是实际安装的依赖的信息，主要是版本。每次升级项目的依赖，lock文件会同步更新。
+所以提交你的项目的时候 这两个文件都要提交
+
+当别人下载你的项目，composer会先查看有没有lock文件，如果有，就按照lock文件下载指定的依赖，这样别人跟你的项目的依赖的所有版本都会一致
+
+
+下载与使用
+
+
+ 检测自己电脑上有没有安装过composer
  composer -v
 
 
-针对没有没有安装过的同学们，来说安装下面步骤操作一遍
+  针对没有没有安装过的同学们，来说安装下面步骤操作一遍
+  注意：这个php -r 是命令行，用来执行php程序，网络上还有另外一种linux命令安装方式，不过貌似没有这个把握
 
-   //下载安装脚本 － composer-setup.php － 到当前目录
-    php -r "copy('https://install.phpcomposer.com/installer', 'composer-setup.php');"
+  //下载安装脚本 － composer-setup.php － 到当前目录
+  php -r "copy('https://install.phpcomposer.com/installer', 'composer-setup.php');"
     
-    //官方网站多了这个
-    php -r "if (hash_file('sha384', 'composer-setup.php') === 'a5c698ffe4b8e849a443b120cd5ba38043260d5c4023dbf93e1558871f1f07f58274fc6f4c93bcfd858c6bd0775cd8d1') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+  //官方网站多了这个 我没使用也安装成功了，不过最好还是加上，我记得这个加密串可能会变的
+  php -r "if (hash_file('sha384', 'composer-setup.php') === 'a5c698ffe4b8e849a443b120cd5ba38043260d5c4023dbf93e1558871f1f07f58274fc6f4c93bcfd858c6bd0775cd8d1') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
     
-   //执行安装过程
-    php composer-setup.php
+  //执行安装过程
+  php composer-setup.php
     
-   //删除安装脚本
-    php -r "unlink('composer-setup.php');"
+  //删除安装脚本
+  php -r "unlink('composer-setup.php');"
     
-   //将命令添加到全局
-   sudo mv composer.phar /usr/local/bin/composer
+  //将命令添加到全局
+  sudo mv composer.phar /usr/local/bin/composer
    
-   
-切到php项目目录下安装composer依赖
- composer install
- 
+
+  切到php项目目录下安装composer依赖
+  composer install 我第一次执行这个命令，提示我没有composer.json文件
+
+  我觉得在上一步就安装完了，
+  使用composer来安装包有两种方式：
+
+  1、创建composer.json文件、写版本号、然后执行composer install
+
+  2、另一种方式用命令、自动创建composer.json文件
+
+    //这样composer.json文件会是版本^1.2
+     composer require monolog/monolog
+     //或
+     composer require monolog/monolog:1.24.0
+     //或
+     composer require monolog/monolog=1.24.0
+     //或
+     composer require monolog/monolog 1.24.0
+
+    注意：安装之前要先search检查存在哪些可用的包，因为包有很多种路径，可能是类似docker镜像下载（我猜的，这个镜像名要匹配）
+    composer require monolog //这是会报错的
+
+      [InvalidArgumentException]
+      Could not find package monolog.
+
+      Did you mean one of these?
+          kdyby/monolog
+          monolog/monolog
+          inpsyde/wonolog
+          maxbanton/cwh
+          mero/yii2-monolog
+
+    composer require monolog/monolog //这个正确。要search后找个符合你项目能用的包
+
+    //查询指定的包
+    composer search monolog
+
+    //查询只匹配某个名称的包
+    composer search --only-name mongolog
+
+
+    在列出一些其他的使用命令，有的我还没用过，先收藏
+
+    //列出所有已安装的包
+    composer show
+
+    //通过通配符进行筛选，列出包
+    composer show monolog/*
+
+    //显示具体某个包的信息
+    composer show monolog/monolog
+
+    //创建项目：比如，创建 Laravel 项目
+    composer create-project --prefer-dist laravel/laravel blog
+
+    //删除指定的包
+    composer remove monolog/monolog
+
+    //更新所有的包
+    composer update
+
+    //更新指定的一个包
+    composer update monolog/monolog
+
+    //更新指定的多个包
+    composer update monolog/monolog guzzlehttp/guzzle
+
+    //更新通过匹配符匹配的包
+    composer update monolog/monolog guzzlehttp/*
+
+    //更新composer版本
+    composer self-update
