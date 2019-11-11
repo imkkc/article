@@ -1,0 +1,12 @@
+
+记录几个介绍描述RabbitMQ的文章地址
+
+
+https://www.jianshu.com/p/a5f7fce67803
+这个原文描述比较好，但是对其说的“一个虚拟主机持有一组交换机、队列和绑定”理解不是很彻底。
+
+https://www.ibm.com/developerworks/cn/opensource/os-cn-rabbit-mq/index.html
+这个也是简明的理论和名次解释
+
+https://blog.csdn.net/hellozpc/article/details/81436980#43Virtual_Hosts_186
+这个是RabbitMQ教程里面有安装到使用界面，貌似官方有demo就像redis示例操作那样子
