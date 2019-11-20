@@ -8,6 +8,9 @@
  简书这篇文章也帮了我不少忙，通俗易懂，
  https://www.jianshu.com/p/6146949387e9
 
+安装完composer后在这里搜各种包，比如phpexcel、mongolog、等能搜出来很多版本，比命令composer search xxx好看一些
+https://packagist.org
+
 
 
 什么是composer？
