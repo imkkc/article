@@ -64,7 +64,16 @@ composer.lock
 
 
   针对没有没有安装过的同学们，来说安装下面步骤操作一遍
-  注意：这个php -r 是命令行，用来执行php程序，网络上还有另外一种linux命令安装方式，不过貌似没有这个把握
+
+	网上有狠多文章会提示：安装前请务必确保已经正确安装了php，我发现两种安装方式也都是与php有关
+	如果涉及到墙，使用www.phpcomposer.com地址里的镜像，能墙还是墙 ，因为相关命令文档资料多
+
+  第一种方法
+    curl -sS https://getcomposer.org/installer | php
+    mv composer.phar /usr/local/bin/composer
+
+  第2种方式
+  注意：下面这个php -r 是命令行，用来执行php程序，网络上还有另外一种linux命令安装方式，就上面的
 
   //下载安装脚本 － composer-setup.php － 到当前目录
   php -r "copy('https://install.phpcomposer.com/installer', 'composer-setup.php');"
