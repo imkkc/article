@@ -11,7 +11,8 @@
 安装完composer后在这里搜各种包，比如phpexcel、mongolog、等能搜出来很多版本，比命令composer search xxx好看一些
 https://packagist.org
 
-
+安装 composer 的前提要求是已经有 php 环境了；
+同时需要开启 openssl 和 fileinfo 扩展；
 
 什么是composer？
 在我们的项目中，可能用到别人的包，以前我们回去下载下来放到我们的项目中，在代码中再require，其实这是比较low的，比较麻烦
