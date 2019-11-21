@@ -33,3 +33,24 @@ docker-php-ext-install 安装的扩展在安装完成后，会自动调用docker
 docker-php-ext-configure
 docker-php-ext-configure 一般都是需要跟 docker-php-ext-install搭配使用的。
 它的作用就是，当你安装扩展的时候，需要自定义配置时，就可以使用它来帮你做到。
+
+
+为啥通常会看见dockerFile最下面会有这么一行 RUN usermod -u 1000 www-data
+直接百度搜usermod -u 1000 www-data能找到答案
+
+简要说明：
+进入容器的bash以后，通过ps aux来查看【容器主进程】的owner用户是谁
+这个owner就是需要访问文件的用户，他的权限决定了这个进程是否有权访问【我们bind-mount、COPY到容器中的文件】
+
+主进程的拥有者是root可以读写任何文件，权限肯定没问题。但是主进程还创建了两个子进程，
+拥有者是www-data这个用户有可能无法读写【被bind-mount或者COPY到容器内的文件】！
+
+使用命令 id www-data 查看这个用户的权限，发现www-data的ownerId:groupId是33:33。
+使用stat或者ls -na命令，查看【COPY到容器内的文件】发现ownerId:groupId都是1000:1000
+
+再结合这些文件的权限信息（比如-rw-rw-r--、drwx------），www-data只能读取其中一些文件，无法写入任何文件
+
+所以RUN usermod -u 1000 www-data 改成与copy进容器内的文件一样就行了
+
+
+
