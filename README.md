@@ -32,3 +32,6 @@ https://blog.csdn.net/li8483468/article/details/79668339
 
 趁着作者的服务器还在，赶紧看完这篇文章
 https://www.xiebruce.top/606.html
+
+
+php提供的8种排序 sort,rsort,asort,arsort,ksort,krsort,usort,uasort
