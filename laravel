@@ -1,0 +1,15 @@
+
+Laravel中模型中可以定义scope开头方法，这类方法可以模型直接使用。这类方法也称作查询作用域
+
+例子:
+
+现有Post模型，内部定义一个scopeTitle()方法
+
+public function scopeTitle($query, $title="") {
+        return $query->where('title', $title);
+    }
+
+第一个参数不可省略。 第二个可以调用时传入。
+在控制器中使用scopeTitle方法时候，只写title就好，scope是不写的。
+
+$posts = Post::where('id', '<', 3)->title('test 2')->orderBy('id', 'desc')->get();
