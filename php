@@ -19,6 +19,10 @@ https://www.jianshu.com/p/fc053b2d7fd1
 https://blog.csdn.net/sunlylorn/article/details/6124319
 https://segmentfault.com/a/1190000004699158
 
+我觉得这个文章说明的很简洁、容易明白。大白话解答事情+举例
+https://www.kancloud.cn/lllh/php-mysql-apache-ngnix-linux-git-svn/403842
+
+相同点：
 (1)      两者都是抽象类，都不能实例化。
 (2)      interface 实现类及 abstract class 的子类都必须要实现已经声明的抽象方法。
 
