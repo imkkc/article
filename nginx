@@ -1,0 +1,14 @@
+
+关于Nginx正向代理与反向代理，这文章写的解释与demo截图都非常精简，很容易就明白了
+https://www.jianshu.com/p/ae76c223c6ef
+
+
+有了上边的文章，我在这里更好的理解了负载均衡的理论，nginx负载均衡用了反向代理
+https://www.cnblogs.com/wcwnina/p/8728391.html
+
+
+这里demo更好的阅读：负载均衡配置：格式参数及权重
+另外有对虚拟主机使用反向代理的场景
+例如将www.aaa.com和www.bbb.com两个网站部署在同一台服务器上，两个域名解析到同一个IP地址
+https://www.cnblogs.com/wcwnina/p/8728430.html
+
