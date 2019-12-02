@@ -35,3 +35,8 @@ https://www.xiebruce.top/606.html
 
 
 php提供的8种排序 sort,rsort,asort,arsort,ksort,krsort,usort,uasort
+
+这里有很多技术型的文章和教程
+https://blog.csdn.net/z694644032/article/details/100084287
+
+
