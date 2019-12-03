@@ -1,0 +1,30 @@
+docker 官方的镜像大多基于debian，但是官方源apt-get update更新失败，如何更换成中国源
+
+本文链接：https://blog.csdn.net/zysgdhf4253/article/details/80917129
+一开始创建容器的时候就应该更换成国内数据源，可是我的镜像源在经历重启后，回归到官方镜像源，当想安装别的linux命令时，异常缓慢，安装不上。这种情况就是镜像源导致。
+
+镜像源可以在容器创建前后更换
+
+1、在创建时运行run更换如下：
+
+#更新apt-get源 使用163的源
+RUN mv /etc/apt/sources.list /etc/apt/sources.list.bak && \
+    echo "deb http://mirrors.163.com/debian/ jessie main non-free contrib" >/etc/apt/sources.list && \
+    echo "deb http://mirrors.163.com/debian/ jessie-proposed-updates main non-free contrib" >>/etc/apt/sources.list && \
+    echo "deb-src http://mirrors.163.com/debian/ jessie main non-free contrib" >>/etc/apt/sources.list && \
+    echo "deb-src http://mirrors.163.com/debian/ jessie-proposed-updates main non-free contrib" >>/etc/apt/sources.list
+2、在创建容器后更换步骤为（需要安装vim）：
+
+      Ⅰ、用docker exec -it XXX bash命令进入容器
+
+      Ⅱ、vim  /etc/apt/sources.list(如果没有vim命令需要先安装vim)
+
+      Ⅲ、删除原来内容，复制如下内容到文本
+
+            deb http://mirrors.163.com/debian/ jessie main non-free contrib
+            deb http://mirrors.163.com/debian/ jessie-proposed-updates main non-free contrib
+            deb-src http://mirrors.163.com/debian/ jessie main non-free contrib
+            deb-src http://mirrors.163.com/debian/ jessie-proposed-updates main non-free contrib
+
+
+      Ⅳ、保存后再更新
