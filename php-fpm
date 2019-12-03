@@ -90,6 +90,29 @@ pm.max_spare_servers = 35; 动态方式下的最大php-fpm进程数量
 
 ###############################
 
+针对超时 做个小实验  
+
+//request_terminate_timeout = 20 
+
+echo 'aaa';
+set_time_limit(5);
+sleep(25); //这个时候显示 502 Bad Gateway ， 如果把这个sleep设置小于20就会正常打印，
+echo 'bbb';
+exit;
+
+结论：php_ini max_execution_time 以及 set_time_limit不计入sleep时间， 但是php-fpm的request_terminate_timeout会计入sleep时间
+
+先查阅了一下php-fpm文件中关于request_terminate_timeout的注释
+
+; The timeout for serving a single request after which the worker process will
+; be killed. This option should be used when the 'max_execution_time' ini option
+; does not stop script execution for some reason. A value of '0' means 'off'.
+; Available units: s(econds)(default), m(inutes), h(ours), or d(ays)
+; Default Value: 0
+这个注释说明了，request_terminate_timeout 适用于，当max_execution_time由于某种原因无法终止脚本的时候，会把这个php-fpm请求干掉。
+
+再看看max_execution_time的注释：这设置了脚本被解析器中止之前允许的最大执行时间
+注意，在php5.3以上版本，safe_mode被弃用，在php5.4以上版本，则将此特性完全去除了。所以php7更不用顾及set_time_limit是否受safe_mode影响
 
 配置php慢日志，用于监控
 
