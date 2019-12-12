@@ -1,4 +1,8 @@
 本文来源 https://www.cnblogs.com/phpworld/p/10538604.html
+
+这个是另外一篇也不错有截屏的运维讲解
+https://www.cnblogs.com/loveyouyou616/p/9842621.html
+
 关于php-fpm比较重要的几个参数
 
 pm.max_children 设置多大合适？
