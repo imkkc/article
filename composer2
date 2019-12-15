@@ -1,0 +1,51 @@
+composer 镜像
+
+使用composer实验东西大半夜报错
+ [Composer\Downloader\TransportException]                                                                                                
+  The "https://repo.packagist.org/packages.json" file could not be downloaded: SSL operation failed with code 1. 
+  OpenSSL Error messages:  
+  error:1416F086:SSL routines:tls_process_server_certificate:certificate verify failed                                                    
+  Failed to enable crypto                                                                                                                 
+  failed to open stream: operation failed     
+解决方法禁用https请求，改用http方式。所以我们在composer.json文件中设置一个本地或全局的composer配置config
+
+方法一：命令行composer config secure-http false。通过命令修改composer.json，效果等同方法二。
+
+方法二：直接改composer.json,给“config”项中加上"secure-http": false 
+
+"config" : {  
+        "vendor-dir" : "packages",
+        "secure-http": false  
+}
+
+依然无法通过，最关键是镜像源，国内的有很多，实验了好几个清华、中科大都无效，最后用了阿里的成功了
+
+全局配置（推荐）
+composer config -l -g //这命令能在最下方看见你的config路径，基本没啥用
+//切换到国内源  阿里
+composer config -g repo.packagist composer https://mirrors.aliyun.com/composer/
+composer config -g --unset repos.packagist这个命令我也没用
+
+为啥慢
+因为通过 Composer 安装第三方包的时候，数据（主要是 zip 文件）一般是从 http://github.com 上下载，
+安装包的元数据则是从 http://packagist.org 上下载。
+国内镜像所做的就是缓存所有安装包和元数据到自己的服务器上，并通过国内的 CDN 进行加速，
+从而让 composer install 以及 composer update 的操作达到最快速度。
+所以即使是 http://packagist.org, http://github.com 发生故障（主要是连接速度太慢和被墙），你仍然可以下载、更新安装包。
+
+phpcomposer (不再推荐)
+想必对大多数 php 开发者来说，最熟悉的 Composer 国内镜像莫过于 phpcomposer 了，它是由 Bootstrap 中文网的站长王赛开发维护的，
+前几年基本上这是国内使用最多的，也是唯一存在的 Composer 中文镜像。
+由于一些未知的原因不再同步Composer官方的数据了，从phpcomposer官网看到，最后的同步时间也停留在 2018/7/17 下午10:51:36。
+
+
+配置镜像一般有两种方式:
+全局配置
+$ composer config -g repo.packagist composer https://packagist.laravel-china.org
+
+单独使用
+$ composer config repo.packagist composer https://packagist.laravel-china.org
+Laravel China 推出的 Composer 镜像取名为『Composer 中国全量镜像』，
+是由 Laravel China 社区联合 又拍云 与 优帆远扬 共同合作推出来的，
+Laravel China 社区近几年发展得不错，想必会长期维护好这个项目，目前可以放心使用。
+
