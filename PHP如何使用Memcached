@@ -1,0 +1,117 @@
+PHP如何使用Memcached命令
+原文 https://www.php.cn/php-weizijiaocheng-390164.html
+
+windows 下没有memcached的扩展，只有memcache的扩展。亲测，两者之间还是有很大差别的。所以建议还是在linux做。
+
+<?php    $mem = new Memcached();    //添加一台服务器资源
+
+    $mem->addServer('127.0.0.1', '11211');    
+    
+    //添加多台，分布式存储，第三个参数为权重值
+
+    /* $servers = array(
+            array('127.0.0.1', 11211, 33),
+            array('127.0.0.2', 11211, 67),
+        );
+        $res = $mem->addServers($servers);
+    */
+
+
+    //设置：键  值  过期时间（秒）
+    $mem->set('name', 'huangyuxin', 5);    //注意：最大生命周期可设置为60*60*24*30 三十天的时间 
+    //再往后的话要加上时间戳 time()+60*60*24*31（三十一天）
+
+
+    //获取值
+
+    $value = $mem->get('name');    //添加值，如果存在此键，false
+    $result = $mem->add('name','zhangsan')；    //追加: 键 值 ,追加在一个已经存在的值得后面,不存在也为false
+    //setOption 这一句必须加上，不然追加不上
+    //prepend 前面追加
+    //如果Memcached::OPT_COMPRESSION常量开启，这个操作会失败，并引发一个警告，因为向压缩数据 后追加数据可能会导致解压不了。
+
+    $mem->setOption(Memcached::OPT_COMPRESSION, false);    
+    $mem->append('name','haha')；    
+    $value = $mem->get('name');    //这个是减掉元素的值，两个参数，第二个参数决定减掉数值几，默认是 1 ，increment 是加
+
+    $mem->set('age', 12, 30);    
+    $mem->decrement('age');    
+    $mem->decrement('age',2);    
+    $value = $mem->get('age');    //删除元素
+
+    $mem->delete('age');    
+    $mem->delete('age',60);   
+    /*
+    注意：
+        服务端在这段时间拒绝对这个key的add和replace命令. 
+        由于这个时间段的存在, 元素被放入一个删除队列
+        表明它不可以通过get命令获取到值
+        但是同时 add和replace命令也从服务端内存删除
+    (表明元素会被立即删除并且之后对这个 key的存储命令也会成功)
+
+*/
+
+ 
+
+    //删除多个
+
+    $mem->add('age', 12, 60);    
+    $mem->add('name', 'huangyuxin', 60);    
+    $res = $mem->deleteMulti(array('age','name'));    //作废 :flush不会 真正的释放已有元素的内存， 而是逐渐的存入新元素重用那些内存。
+
+    $mem->flush(10);//10秒内清除元素
+
+    //获取所有键
+
+    $mem->getAllKeys();    /*
+        Memcached::getDelayed()向Memcached服务端发出一个检索keys指定的多个 key对应元素的请求。
+        这个方法不会等待响应而是立即返回。当你需要收集元素值时， 调Memcached::fetch()
+        或 Memcached::fetchAll()。如果with_cas设置为true，会同时请求每个元素的CAS标记。
+    */
+
+    $m->set('int', 99);    
+    $m->set('array', array(11, 12));    
+    $m->getDelayed(array('int', 'array'), true);
+
+    var_dump($m->fetchAll());    //获取多个值的信息
+
+    $mem->set('age', 12, 60);    
+    $mem->set('name', 'huangyuxin', 60);    
+    $res = $mem->getMulti(array('age', 'name'));    //设置多个键
+
+    $items = array(    
+            'key1' => 'value1',    'key2' => 'value2',    'key3' => 'value3',
+    );    
+    $mem->setMulti($items);    
+    $res = $mem->get('key1');//value
+
+
+    //返回系统常量
+    var_dump($mem->getOption(Memcached::OPT_COMPRESSION));    //返回最后一次操作的结果描述消息
+    $mem->add('a', 'bar'); // first time should succeed
+    echo $mem->getResultMessage(), "\n"; //SUCCESS
+
+    //查看此key在哪个服务器上
+    $mem->add('a', 'bar'); // first time should succeed
+    $res = $mem->getServerByKey('a');    
+    //array(3) { ["host"]=> string(9) "127.0.0.1" ["port"]=> int(11211) ["weight"]=> int(0) } 
+
+    //返回服务器列表
+
+    var_dump($mem->getServerList());    //返回服务器状态
+    var_dump($mem->getServerList());    //服务器版本
+    print_r($mem->getVersion());    //判断是否是持久链接
+    $res = $mem->isPersistent();    //Memcached::replace()和Memcached::set()类似，但是如果 服务端不存在key， 操作将失败。
+
+    $m->set('hh', 'aaaa');    
+    $m->replace('hh', 'bbbb');    
+    $res = $m->get('hh');    //删除从已知的服务器列表中的所有缓存服务器，重置回空。
+
+    $mem->resetServerList();    //对某一key重新设置生命周期
+
+    $m->set('aaaa', 'aaaa', 600);    
+    $m->touch('aaaa', 5);   
+    $value= $m->get('aaaa');    //关闭打开的链接
+
+    $m->quit();
+    var_dump($value);
