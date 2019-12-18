@@ -12,3 +12,56 @@ https://www.cnblogs.com/wcwnina/p/8728391.html
 另外有对虚拟主机使用反向代理的场景
 例如将www.aaa.com和www.bbb.com两个网站部署在同一台服务器上，两个域名解析到同一个IP地址
 https://www.cnblogs.com/wcwnina/p/8728430.html
+
+
+nginx自定义404、500页面更改或关闭favicon.ico
+一、自定义错误页面
+
+1、在nginx配置文件nginx.conf的http中添加这样一句话，表明要使用自定义的错误提示页面：
+
+fastcgi_intercept_errors on; #表明使用自定义错误提示
+
+2、指定的server中配合，配置404.html或者500.html页面
+fastcgi_intercept_errors on;
+ 
+server {
+    listen       80;
+    error_page    404  /404.html;    --页面放在html文件中或自定义位置
+    location = /404.html {
+        root   html;
+    }
+ 
+    error_page   500 502 503 504  /50x.html;    --页面放在html文件中或自定义位置
+    location = /50x.html {
+        root   html;
+    }
+}
+
+
+二、自定义或者关闭favicon.ico，指的是下图的图标
+# 把以下配置放到 server {} 块.
+ 
+#关闭favicon.ico不存在时记录日志
+location = /favicon.ico {
+    #root html;            --或者自定义一个favicon.ico文件，将favicon.ico放到html目录。
+    return 404;
+    expires 30d;
+    log_not_found off;    --关闭日志 
+    access_log off;       --不记录在access.log
+}
+ 
+location = /robots.txt {
+    allow all;
+    log_not_found off;
+    access_log off;
+}
+ 
+# 不允许访问隐藏文件例如 .htaccess, .htpasswd, .DS_Store (Mac).
+location ~ /. {
+    deny all;
+    access_log off;
+    log_not_found off;
+}
+
+配置部分原文连接
+原文链接：https://blog.csdn.net/shardy0/article/details/99715930
