@@ -26,5 +26,9 @@ RabbitMq初探——消息确认, 我根据这个文章调试了下代码，进�
 · （六）RabbitMQ消息队列-消息任务分发与消息ACK确认机制（PHP版）
 
 
+https://blog.csdn.net/qq_28513801/article/details/90641238
+这篇文章图形解说，下面还有命令行的介绍，能巩固下原理方面的理解
+
+
 顺便粘贴个三次握手、四次挥手
 https://blog.csdn.net/qq_38950316/article/details/81087809
