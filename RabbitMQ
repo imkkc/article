@@ -16,6 +16,15 @@ https://www.jmsite.cn/blog-512.html
 这篇笔记记录了php连接rabbitmq实现消息的生产和消费的整个过程，包括声明持久的直连交换机，声明持久的队列，以及生产持久的消息，消费者处理消息等
 
 
+https://www.cnblogs.com/hejun695/p/7691655.html
+RabbitMq初探——消息确认, 我根据这个文章调试了下代码，进一丢丢的理解RabbitMq程序的写法，
+除此之外，作者还写了以下篇章，示例截图与讲解配套，值得一看
+· RabbitMq初探——消息均发
+· RabbitMq初探——消息分发
+· RabbitMq初探——消息持久化
+· RabbitMq初探——发布与订阅
+· （六）RabbitMQ消息队列-消息任务分发与消息ACK确认机制（PHP版）
+
 
 顺便粘贴个三次握手、四次挥手
 https://blog.csdn.net/qq_38950316/article/details/81087809
