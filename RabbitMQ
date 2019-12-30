@@ -12,7 +12,7 @@ https://blog.csdn.net/hellozpc/article/details/81436980#43Virtual_Hosts_186
 这个是RabbitMQ教程里面有安装到使用界面，貌似官方有demo就像redis示例操作那样子
 
 
-https://www.jmsite.cn/blog-512.html
+https://www.jmsite.cn/blog-512.html（损失了，还不到一个月的时间，这个网站就没了，我有点理解为啥技术界千篇一律的copy）
 这篇笔记记录了php连接rabbitmq实现消息的生产和消费的整个过程，包括声明持久的直连交换机，声明持久的队列，以及生产持久的消息，消费者处理消息等
 
 
