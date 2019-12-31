@@ -15,6 +15,9 @@ https://blog.csdn.net/hellozpc/article/details/81436980#43Virtual_Hosts_186
 https://www.jmsite.cn/blog-512.html（损失了，还不到一个月的时间，这个网站就没了，我有点理解为啥技术界千篇一律的copy）
 这篇笔记记录了php连接rabbitmq实现消息的生产和消费的整个过程，包括声明持久的直连交换机，声明持久的队列，以及生产持久的消息，消费者处理消息等
 
+https://blog.csdn.net/liuensong/article/details/103538985
+RabbitMQ实战指南笔记
+
 
 https://www.cnblogs.com/hejun695/p/7691655.html
 RabbitMq初探——消息确认, 我根据这个文章调试了下代码，进一丢丢的理解RabbitMq程序的写法，
