@@ -1,4 +1,7 @@
 
+https://blog.csdn.net/weixin_36851500/article/details/93923919
+一篇php守护进程的命令讲解，
+
 https://www.cnblogs.com/hejun695/p/6934677.html
 遇到个抓包灌水的文章，很多东西直接借鉴，留着，今晚看看
 
