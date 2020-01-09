@@ -1,6 +1,8 @@
 
 记录几个介绍描述RabbitMQ的文章地址
 
+https://blog.csdn.net/qq_37837134/article/details/89407123
+rabbitmq守护进程
 
 https://www.jianshu.com/p/a5f7fce67803
 这个原文描述比较好，但是对其说的“一个虚拟主机持有一组交换机、队列和绑定”理解不是很彻底。
