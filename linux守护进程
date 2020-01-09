@@ -1,6 +1,12 @@
 作者出处
 https://blog.csdn.net/weixin_36851500/article/details/93923919
 
+https://blog.csdn.net/weixin_36851500/article/details/94171327
+rabbitMQ +php（PCNTL） 服务端守护进程（二） 
+
+在使用php开发服务端时，很多时候避免不了和多进程打交道，安装扩展pcntl和posix实现多进程
+
+
 nohup命令：如果你正在运行一个进程，而且你觉得在退出帐户时该进程还不会结束，那么可以使用nohup命令。该命令可以在你退出帐户/关闭终端之后继续运行相应的进程。
 
 在缺省情况下该作业的所有输出都被重定向到一个名为nohup.out的文件中。
