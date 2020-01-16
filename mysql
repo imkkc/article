@@ -1,1 +1,38 @@
 http://www.zuidaima.com/blog/4063043883584512.htm
+
+
+https://blog.csdn.net/huangbaokang/article/details/82494578
+MYSQL利用merge存储引擎来实现分表
+
+做法：创建字段都相同的几个表，两张一样的分表，和一个总表，
+关键是总表采用merge类型， ENGINE = MRG_MYISAM  UNION =(user1,user2) INSERT_METHOD LAST CHARSET UTF8;
+
+##
+CREATE TABLE IF NOT EXISTS user1(
+id INT(11) NOT NULL AUTO_INCREMENT,
+NAME VARCHAR(50) DEFAULT NULL,
+sex INT(1) NOT NULL DEFAULT '0',
+PRIMARY KEY (id)
+)ENGINE=MYISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
+##
+CREATE TABLE IF NOT EXISTS user2(
+id INT(11) NOT NULL AUTO_INCREMENT,
+NAME VARCHAR(50) DEFAULT NULL,
+sex INT(1) NOT NULL DEFAULT '0',
+PRIMARY KEY (id)
+)ENGINE=MYISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
+
+INSERT INTO user1(NAME,sex) VALUES('huangbaokang',0)
+INSERT INTO user2(NAME,sex) VALUES('zhanglulu',0)
+
+##创建总表
+CREATE TABLE IF NOT EXISTS t_user (  
+        id INT(11) NOT NULL AUTO_INCREMENT,  
+        name VARCHAR(50) DEFAULT NULL,  
+       sex INT(1) NOT NULL DEFAULT '0',  
+       INDEX(id)  
+      )  ENGINE = MRG_MYISAM  UNION =(user1,user2) INSERT_METHOD LAST CHARSET UTF8;
+      
+#分表处理      
+INSERT INTO user1(user1.id,user1.name,user1.sex)SELECT (user.id,user.name,user.sex)FROM user where user.id <= 250000
+INSERT INTO user2(user2.id,user2.name,user2.sex)SELECT (user.id,user.name,user.sex)FROM user where user.id > 250000
