@@ -1,6 +1,8 @@
 
 关于Nginx正向代理与反向代理，这文章写的解释与demo截图都非常精简，很容易就明白了
 https://www.jianshu.com/p/ae76c223c6ef
+nginx+php-fpm运行原理 ,正向代理与反向代理
+https://www.cnblogs.com/xingxia/p/nginx_php-fpm.html
 
 
 有了上边的文章，我在这里更好的理解了负载均衡的理论，nginx负载均衡用了反向代理
