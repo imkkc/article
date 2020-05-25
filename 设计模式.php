@@ -156,3 +156,59 @@ if ('man' == $_GET['man']){
 //在执行过程中才将两个依赖关系进行绑定，实现Ioc，依赖倒置、控制反转， 看到这个想起laravel
 $page->setStage($stage);
 $page->index();
+
+
+/**
+ * 观察者模式，当一个对象发生改变，依赖它的对象全部更新改变
+ * 观察者（需要执行的业务逻辑）
+ * 生产者（触发业务逻辑的场景条件）
+ */
+
+//声明一个接口 表示观察者
+interface Observer{
+    function update($event_info = null);
+}
+//不同业务的各种观察者
+class Observer1 implements Observer{
+    function update($event_info = null)
+    {
+        // TODO: Implement update() method.
+        echo '第1个观察者业务逻辑'.PHP_EOL;
+    }
+}
+class Observer2 implements Observer{
+    function update($event_info = null)
+    {
+        // TODO: Implement update() method.
+        echo '第2个观察者业务逻辑'.PHP_EOL;
+    }
+}
+//声明一个基类，表示事件️产生者
+abstract class EventGenerator{
+    //私有，因为观察者Observer对于事件发生者来说是不可见的
+    private $observers = [];
+    function addObserver(Observer $observer){
+        $this->observers[] = $observer;
+    }
+
+    //逐个通知所有观察者
+    function notify(){
+        foreach ($this->observers as $observer){
+            $observer->update();
+        }
+    }
+}
+
+//这时候，主体代码实现就简单了
+class Event extends EventGenerator {
+    //表示触发事件就通知各个业务场景更新
+    function trigger(){
+        echo 'Event'.PHP_EOL;
+        $this->notify();
+    }
+}
+$event = new Event();
+$event->addObserver(new Observer1());
+$event->addObserver(new Observer2());
+$event->trigger();
+
