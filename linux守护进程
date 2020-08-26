@@ -5,14 +5,18 @@ rabbitMQ +php（PCNTL） 服务端守护进程（二）
 
 在使用php开发服务端时，很多时候避免不了和多进程打交道，安装扩展pcntl和posix实现多进程
 
-
 nohup命令：如果你正在运行一个进程，而且你觉得在退出帐户时该进程还不会结束，那么可以使用nohup命令。该命令可以在你退出帐户/关闭终端之后继续运行相应的进程。
 
 在缺省情况下该作业的所有输出都被重定向到一个名为nohup.out的文件中。
 
-nohup command > myout.file 2>&1 &
-在上面的例子中，0 – stdin (standard input)，1 – stdout (standard output)，2 – stderr (standard error) ；
-2>&1是将标准错误（2）重定向到标准输出（&1），标准输出（&1）再被重定向输入到myout.file文件中。
+nohup command.php >myout.file 2>&1 &
+nohup server.php  >/dev/null 2>&1 &
+在上面的例子中，
+0 – stdin (standard input)，
+1 – stdout (standard output)，
+2 – stderr (standard error) ；
+
+所以2>&1是将标准错误（2）重定向到标准输出（&1），标准输出（&1）再被重定向输入到myout.file文件中,写成/dev/null进黑洞
 
 nohup和&的区别
     & ： 指在后台运行
@@ -22,11 +26,9 @@ nohup ： nohup运行命令可以使命令永久的执行下去，和用户终�
 例如：执行命令
 nohup yii test-server/start > tets.txt 2>&1 &
 
-查看进程 jobs命令只看当前终端生效的，关闭终端后，在另一个终端jobs已经无法看到后台跑得程序了
 jobs -l
-
-此时利用ps（进程查看命令）ps -ef | grep php
-
+查看进程 jobs命令只看当前终端生效的，关闭终端后，在另一个终端jobs已经无法看到后台跑得程序了,此时利用ps（进程查看命令）
+ps -ef | grep php
 501  5410     1   0  4:08下午 ??         0:00.05 php /usr/bin/yii test-server/start
   501  5888     1   0  4:10下午 ??        13:27.09 /Applications/PhpStorm.app/Contents/MacOS/phpstorm
   501  8723     1   0  4:25下午 ??         0:00.00 php /usr/bin/yii test-server/start
@@ -37,3 +39,21 @@ jobs -l
 单独执行 php myprog.php，当按下ctrl+c时就会中断程序执行，会kill当前进程以及子进程。
 然而执行 php myprog.php &，这样执行程序虽然也是转为后台运行，实际上是依赖终端的，当用户退出终端时进程就会被杀掉。
 结合 nohup php myprog.php & 才是守护进程
+
+
+关于nohup
+
+在使用nohup命令的时候，经常由于输出nohup.out的路径没有写入权限，而无法使用nohup。
+这是可以使用Linux重定向的方法，将nohup.out重定向至一个有写入权限的路径，或者直接扔到/dev/null中。
+nohup server.php >/dev/null 2>/dev/null & 
+或者 nohup server.php >/dev/null 2>&1 & 我实验时候用的这个，和上面一个意思
+
+/dev/null代表linux的空设备文件，所有往这个文件里面写入的内容都会丢失，俗称“黑洞”。
+那么执行了>/dev/null之后，标准输出就会不再存在，没有任何地方能够找到输出的内容。
+
+2>&1：将错误信息重定向到标准输出，而标准输出已经被定义丢尽黑洞了
+
+
+
+
+
