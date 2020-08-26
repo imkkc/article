@@ -1,0 +1,129 @@
+
+这个源是php72w系列的，我没找到php74w系列，这个源也是搜出来的别人搭建环境使用的
+
+sudo yum install epel-release -y
+sudo rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
+sudo yum -y remove php*
+
+sudo yum -y install php72w php72w-cli php72w-fpm php72w-common php72w-devel php72w-embedded php72w-gd php72w-mbstring php72w-mysqlnd php72w-opcache php72w-pdo php72w-xml php72w-pecl-redis openssl openssl-devel nginx mysql redis
+sudo yum -y install gcc
+php -v
+
+-----------------------------------------------------
+sudo wget http://pecl.php.net/get/yaf-3.0.8.tgz
+sudo tar zxvf yaf-3.0.8.tgz
+cd yaf-3.0.8
+
+whereis phpize
+
+sudo /usr/bin/phpize
+sudo ./configure --with-php-config=/usr/bin/php-config
+sudo make && sudo make install
+
+cd /etc/php.d/
+sudo vim yaf.ini
+extension=yaf.so
+-----------------------------------------------------
+
+嫌上面的麻烦可以直接 sudo pecl install yaf-3.2.5 在修改php.ini
+
+php -m
+
+先注释掉demo-server区块
+sudo vim /etc/nginx/nginx.conf
+
+然后单独给项目配置server
+sudo vim /etc/nginx/conf.d/demo.conf
+
+
+systemctl start mysql.service
+
+如果启动MySQL数据库是却是这样的提示
+Failed to start mysqld.service: Unit not found
+
+首先需要安装mariadb-server
+sudo yum install -y mariadb-server
+
+启动服务
+sudo systemctl start mariadb.service
+
+这个时候mysql已经启动了
+ps aux | grep mysql
+
+添加到开机启动(这个我没使用)
+systemctl enable mariadb.service
+
+进行一些安全设置，以及修改数据库管理员密码(这个我没使用)
+mysql_secure_installation
+
+刚装完的mysql是没密码的，直接进
+mysql -uroot -hlocalhost -p
+
+mysql给root开启远程访问权限
+use mysql;
+select User,authentication_string,Host from user;
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'root123';
+flush privileges;(这个我也没使用)
+
+这个时候可以使用root和密码root123使用工具连接db创建项目数据库了
+
+CREATE USER 'devuser'@'%' IDENTIFIED BY 'devuser123';
+GRANT all privileges ON 项目数据库名称.* TO 'devuser'@'%'; 针对项目的数据库给用户分配权限
+
+
+从CentOS 7.x 以后，Red Hat 放弃了 init 启动脚本的方法，改用systemd 这个启动服务管理机制。
+sudo systemctl enable php-fpm.service
+sudo systemctl enable nginx.service
+sudo systemctl enable redis.service
+sudo systemctl enable mysql.service 这个没使用
+sudo systemctl start mysqld.service 这个起不来，需要安装mariadb-server 启动它
+
+sudo /usr/sbin/nginx -t
+sudo /usr/sbin/nginx -c /etc/nginx/nginx.conf
+sudo /usr/sbin/nginx -s reload
+sudo systemctl stop nginx.service 结束nginx有时候失灵，我kill进程的，一般用不到它
+
+sudo systemctl start php-fpm
+sudo systemctl restart php-fpm
+
+sudo systemctl start redis
+
+
+
+如果出现：
+响应时间过长 ERR_CONNECTION_TIMED_OUT
+检查代理服务器和防火墙
+
+可能是防火墙没关闭，运维开出来的服务器还可能各种端口号都是关闭的
+sudo systemctl status firewalld 查看防火墙状态
+sudo systemctl stop firewalld  关闭防火墙（开发测试环境可以关）
+sudo systemctl disable firewalld  禁用防火墙（这个我没用，开发测试环境可以）
+
+查看端口有没有开放
+[dev@testbase ~]$ netstat -an|grep 3306
+tcp        0      0 0.0.0.0:3306            0.0.0.0:*               LISTEN
+关闭防火墙后 可以看到3306开放了
+[dev@testbase ~]$ netstat -an|grep 3306
+tcp        0      0 0.0.0.0:3306            0.0.0.0:*               LISTEN
+tcp        0      0 192.xxx.0.xxx:3306      192.xxx.0.xxx:53486     ESTABLISHED
+
+另外针对端口号开启关闭，Centos7可以用firewalld命令
+Centos7默认安装了firewalld，如果没有安装的话，则需要YUM命令安装；也可以用iptable命令开放端口
+
+安装Firewall命令：
+yum install firewalld firewalld-config
+
+Firewall开启常见端口命令：
+firewall-cmd --zone=public --add-port=80/tcp --permanent
+firewall-cmd --zone=public --add-port=443/tcp --permanent
+firewall-cmd --zone=public --add-port=22/tcp--permanent
+firewall-cmd --zone=public --add-port=21/tcp --permanent
+firewall-cmd --zone=public --add-port=53/udp --permanent
+firewall-cmd --zone=public --add-port=9501/udp --permanent
+
+Firewall关闭常见端口命令：
+firewall-cmd --zone=public --remove-port=80/tcp --permanent
+firewall-cmd --zone=public --remove-port=443/tcp --permanent
+firewall-cmd --zone=public --remove-port=22/tcp --permanent
+firewall-cmd --zone=public --remove-port=21/tcp --permanent
+firewall-cmd --zone=public --remove-port=53/udp --permanent
