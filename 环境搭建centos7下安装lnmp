@@ -1,6 +1,24 @@
 
 这个源是php72w系列的，我没找到php74w系列，这个源也是搜出来的别人搭建环境使用的
 
+--------------------------------------------------------
+小插曲：php74的源
+CentOS 内置的yum命令安装非常的简单实用，能自动帮助我们解决依赖，但centos内置的yum源可用的软件偏少或者版本过低，通常我们需要使用一些第三方的yum源，
+这里向大家推荐两个比较常用和权威的yum源，epel和remi。
+
+yum install epel-release
+yum install http://rpms.remirepo.net/enterprise/remi-release-7.rpm
+
+ yum search php73
+ yum search php74
+ 
+ yum install php74-php-gd  php74-php-pdo php74-php-mbstring php74-php-cli php74-php-fpm php74-php-mysqlnd
+ 其他的自己搜搜吧，或者按照php72的名称 yum search一下，这里主要是记录一下源地址
+ 
+ ------------------------------------------------------
+ 下面进入正题
+
+
 sudo yum install epel-release -y
 sudo rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
 sudo yum -y remove php*
