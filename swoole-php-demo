@@ -1,0 +1,121 @@
+1、安装swoole
+   按照官方文档就行了，只当一个php扩展来安装，
+   我用pecl install swoole 会出现提示选项，我全用了yes，在次记录下各个选项说明
+    【正在安装】
+    // 是否启用 PHP Sockets 支持
+    // 如果你需要用 PHP 编写 Sockets 服务，可以启用此项。
+    enable sockets supports? [no] : yes
+    // 是否启用 OpenSSL 支持
+    // 是否启用 SSL 加密，如果你是通过 Swoole 提供对外的 HTTPS 服务，则需要启用此项。
+    // 我的 Mac 是本地开发用，所以不启用。
+    enable openssl support? [no] : no
+    // 是否启用 HTTP2 支持
+    // 了解 HTTP2 新特性 https://zh.wikipedia.org/wiki/HTTP/2
+    enable http2 support? [no] : yes
+    // 是否启用异步 Redis 支持
+    // Swoole 实现了一套支持异步的 Redis 服务端框架
+    // https://wiki.swoole.com/wiki/page/p-redis_server.html
+    enable async-redis support? [no] : yes
+    // 是否启用 MySQL 原生支持
+    enable mysqlnd support? [no] : yes   
+   
+   
+   安装前必须保证系统已经安装了下列软件
+   
+    php-7.1 或更高版本
+    gcc-4.8 或更高版本 
+    make
+    autoconf
+
+    踩坑： 除了上面gcc外，根据报错提示baidu下，还执行 yum install sudo yum install gcc-c++ 
+          分什么服务器，我在家里docker环境安装没遇到过这情况，一般都是缺少依赖东西报错，安装上就好了
+
+    踩坑： 使用 php --ini 来定位到 php.ini 绝对路径，追加extension=swoole.so无效！
+           
+           解决办法
+           sudo vim /etc/php.d/sockets.ini
+           追加 extension=swoole.so
+           sudo systemctl restart php-fpm
+           好用了！
+
+           在官方文档没有查到这个解释,后来测试发现是插件加载顺序的原因,应该把extension=swoole.so加到socket的加载后面
+   
+   感谢这位仁兄的记录！
+   centos环境安装swoole后,php7无法加载swoole.so时出现nable to load dynamic library 'swoole.so'
+   https://www.pianshen.com/article/89063514/
+   
+   到此为止，swoole安装完成！！
+   
+
+   官方明确的注意事项：
+   
+   先确认 CLI 模式下是否有，因为 Swoole 是运行在 cli 模式下的 ！！
+
+   php --ri swoole  
+
+   如果输出了Swoole的扩展信息就说明你安装成功了！  
+   99.999% 的人在此步成功就可以直接使用 swoole 了
+
+   不需要管 php -m 或者 phpinfo 网页打印出来是否有 swoole ，
+   因为 Swoole 是运行在 cli 模式下的 ！！！！！
+   
+   在传统的 fpm 模式下功能十分有限， 任何异步 / 协程等主要功能都不可以使用  
+   
+   
+
+2、swoole使用
+   服务端主要是各种php文件，支持tcp、udp、http、WebSocket 通常使用sudo nohup php server.php后台执行
+   
+   创建server.php
+   复制下官方demo代码，然后标注下踩坑点：
+   
+    //创建Server对象，监听 127.0.0.1:9501 端口
+    //注意服务器所使用的 IP 地址，如果是 127.0.0.1 回环地址，则客户端只能使用 127.0.0.1 才能连接上
+    //我当时对这句话不是很理解，啥叫回环地址（现在也不知道）
+    $server = new Swoole\Server('127.0.0.1', 9501);
+    
+    $server->on('Connect', function ($server, $fd) {
+        echo "客户端: Connect.\n";
+    });
+
+    $server->on('Receive', function ($server, $fd, $from_id, $data) {
+        $server->send($fd, "服务端回复: " . $data);
+    });
+
+    $server->on('Close', function ($server, $fd) {
+        echo "客户端: Close.\n";
+    });
+
+    $server->start(); 
+   
+   
+   
+   
+   在命令行下运行 server.php 程序，启动成功后可以使用 netstat 工具看到已经在监听 9501 端口。
+   
+   踩坑：
+   初次使用，无法启动swoole，没有提示，也没有输出，netstat -an | grep 9501 也没有任何东西
+   我一直以为端口号没打开（其实不是）
+   找运维咨询各种小白问题，firewall-cmd --zone=public --add-port=9501/udp --permanent 还是不行
+   
+   最后运维一句话提醒：你开启服务了吗？ 没开启服务telnet 127.0.0.1 9501看不到监听端口
+   后来仔细想想发现：
+   
+   //创建Server对象，监听 127.0.0.1:9501 端口
+   $server = new Swoole\Server('127.0.0.1', 9501); //这里要写服务器的ip地址
+
+    官方手册这样写，那其实使用端口，监听端口，都是这个服务
+    不先启动服务，端口号开放了也没被使用，telnet就查不到，netstat -an | grep 端口也查不到
+    
+    所以要先开服务！！！ 
+    然后再去查看端口号有没有被防火墙禁用啥的，不然就傻掰了 
+   
+   
+   
+   客户端可以命令行连接测试
+   telnet 服务器ip 9501
+   hello
+   服务器: hello
+
+   
+
