@@ -52,11 +52,16 @@ server {
   # ssl_certificate_key /data/cer/www-private.key;
   # 修改这一行指向我们生成的server.key.unsecure文件，重启nginx就不被要求输入密码拦截卡死
   ssl_certificate_key /etc/nginx/certs/server.key.unsecure;
+  
+    location ~ .*\.php.*
+    {
+        include php_fcgi.conf;
+        include pathinfo.conf;
+        # 加入https的头信息（使后端php知道是加密的请求）：
+        # 加入在path_info 配置之后，我加完这个把上面的ssl on; 注释掉也能用https访问，但是保留上面的，注释掉这里ecstore页面的css错乱
+        fastcgi_param HTTPS on;
+    }
 }
-
-加入https的头信息（使后端php知道是加密的请求）：
-# 加入在path_info 配置之后  ，我加完这个把上面的ssl on; 注释掉也能用https访问
-fastcgi_param HTTPS on;
 
 然后使用/etc/init.d/nginx restart重启Nginx，
 
