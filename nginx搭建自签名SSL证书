@@ -45,7 +45,9 @@ server {
   listen 443;
   server_name www.example.com; # 你自己的域名
   root /home/www;
-   ssl on;
+  # 这里打开就只能https访问了，保留下面的fastcgi_param HTTPS on;注释掉这里，那https和http都支持，
+  # 但是要想防止抓数据一般都要打开这里吧
+  # ssl on;
   # 加入ssl证书服务商的公钥（我们是自签名创建的）
   ssl_certificate /etc/nginx/certs/server.crt;
   # 加入ssl私钥：
