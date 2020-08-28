@@ -1,0 +1,75 @@
+真正商用的SSL当然也可以自行购买。（一般是买了域名赠送的）
+我个人是为了防止数据中间被抓走,所以用了startssl 也基本就够用了。
+
+nginx搭建自签名SSL证书
+
+1.创建私钥
+
+openssl genrsa -out server.key 1024
+
+回车之后就可以得到一个私钥server.key
+
+
+2.创建证书签名请求
+
+openssl req -new -key server.key -out server.csr
+
+回车之后会有一堆等着你输入的东西，直接一路回车。
+唯独一个Common Name要填成对应网站的IP或者域名：
+
+Common Name (e.g. server FQDN or YOUR name) []:10.10.10.10
+
+
+3. 创建自签名证书
+openssl x509 -req -in server.csr -signkey server.key -out server.crt
+回车后会得到一个自签名证书server.crt
+
+
+4. 生成证书（注意路径，可以在nginx配置文件vhost下也行）
+openssl req -newkey rsa:2048 -keyout /data/cer/www-private.key -out /data/cer/www-public.csr
+
+这个时候生成两个文件 www-private.key和www-public.csr
+
+但是这样启用SSL重启Nginx提示 Enter PEM Pass Phrase:需要输入密码
+网上流传办法：
+这种情况可能是在设置私钥key时将密码设置写入了key文件，导致Nginx/Apache等系列服务器在启动时要求Enter PEM pass phrase。
+我们需要做的是剥离这个密码，利用如下OpenSSL命令生成server.key.unsecure文件：
+
+openssl rsa -in server.key -out server.key.unsecure
+
+如果server.key.unsecure生成成功，我们就修改Nginx配置，比如像下面这样：
+
+
+5. 配置nginx重启
+server {
+  listen 443;
+  server_name www.example.com; # 你自己的域名
+  root /home/www;
+   ssl on;
+  # 加入ssl证书服务商的公钥（我们是自签名创建的）
+  ssl_certificate /etc/nginx/certs/server.crt;
+  # 加入ssl私钥：
+  # ssl_certificate_key /data/cer/www-private.key;
+  # 修改这一行指向我们生成的server.key.unsecure文件，重启nginx就不被要求输入密码拦截卡死
+  ssl_certificate_key /etc/nginx/certs/server.key.unsecure;
+}
+
+加入https的头信息（使后端php知道是加密的请求）：
+# 加入在path_info 配置之后  ，我加完这个把上面的ssl on; 注释掉也能用https访问
+fastcgi_param HTTPS on;
+
+然后使用/etc/init.d/nginx restart重启Nginx，
+
+另外记得：Linux 开启443端口、
+
+在Linux终端输入指令：
+
+iptables -I INPUT -p tcp --dport 443 -j ACCEPT
+
+输入保存防火墙配置指令：
+
+service iptables save
+
+输入重启防火墙服务指令：
+
+service iptables restart
