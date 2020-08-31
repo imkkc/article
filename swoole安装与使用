@@ -45,7 +45,12 @@
    https://www.pianshen.com/article/89063514/
    
    到此为止，swoole安装完成！！
-   
+
+我看合作伙伴公司这样安装swoole扩展的
+yum search swoole
+yum install php-swoole72 php-swoole_loader72
+有机会试试，估计比我的方式简单
+
 
    官方明确的注意事项：
    
