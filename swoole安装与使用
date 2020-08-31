@@ -46,10 +46,25 @@
    
    到此为止，swoole安装完成！！
 
+
+
 我看合作伙伴公司这样安装swoole扩展的
 yum search swoole
 yum install php-swoole72 php-swoole_loader72
-有机会试试，估计比我的方式简单
+有机会试试，估计比我的方式简单，
+前提是yum search swoole要能搜出来
+================================================= N/S Matched: swoole ==================================================
+libsodium-swoole.x86_64 : libsodium-swoole X86_64
+php-swoole53.x86_64 : GUN swoole X86_64
+php-swoole54.x86_64 : GUN swoole X86_64
+php-swoole56.x86_64 : GUN swoole X86_64
+php-swoole70.x86_64 : GUN swoole X86_64
+php-swoole71.x86_64 : GUN swoole X86_64
+php-swoole72.x86_64 : GUN swoole X86_64
+php-swoole_loader56.x86_64 : php-swoole_loader56 X86_64
+php-swoole_loader72.x86_64 : php-swoole_loader72 X86_64
+
+
 
 
    官方明确的注意事项：
