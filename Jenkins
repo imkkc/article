@@ -69,7 +69,8 @@ Executing /sbin/chkconfig jenkins on
 但是我这样竟然成功启动了， 
 sudo systemctl start jenkins.service
 
-不过访问web提示的密码变了，我又重新安装一次插件。不知道这是不是正常现象
+不过访问web提示的密码变了，我又重新安装一次插件.重新设置一次管理员和邮箱。
+不知道这是不是正常现象
 
 
 
