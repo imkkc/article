@@ -1,0 +1,62 @@
+自动化部署--Jenkins--简介安装
+
+https://pkg.jenkins.io/redhat-stable/
+
+官方网站的安装操作提示，操作步骤太简单，一般没有成功的
+
+这里记录下成功的方法，感谢网络上分享笔记的朋友们！
+
+
+sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
+sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+
+yum install jenkins -y
+
+到这里官方文档就结束了  - -#
+
+启动
+sudo systemctl enable jenkins
+
+启动失败，提示
+jenkins.service is not a native service, redirecting to /sbin/chkconfig.
+Executing /sbin/chkconfig jenkins on
+
+网络上解决方法
+
+查看安装路径
+rpm -ql jenkins
+/etc/init.d/jenkins
+/usr/lib/jenkins           //Jenkins安装目录，war包存放于此
+/etc/sysconfig/jenkins     //Jenkins配置文件、端口、JENKINS_HOME等配置信息
+/var/lib/jenkins           //默认的JENKINS_HOME
+/var/log/jenkins           //Jenkins日志存放路径
+
+查看或修改启动端口，我没改，默认8080
+vim /etc/sysconfig/jenkins
+
+开启防火墙端口
+firewall-cmd --zone=public --add-port=8080/tcp --permanent
+
+刷新防火墙配置
+sudo firewall-cmd --reload
+
+启动Jenkins 
+sudo java -jar /usr/lib/jenkins/jenkins.war --httpPort=8081
+
+这时候界面里会有密码，用于web访问时候输入。感觉不记录也没关系，访问web页面会提示查询密码路径
+
+访问
+浏览器访问：http://你的服务器ip:8080/
+
+输入密码
+
+默认插件安装、比较慢(看网速) 像是九宫格的插件表，它会自己一个一个装，耐心等
+
+创建管理员、保存完成
+jenkins URL 使用默认就好（应该是服务器ip:8080）
+
+准备就绪、  欢迎来到 Jenkins!
+
+安装完成，剩下的就是配置项目了
+
+
