@@ -59,4 +59,18 @@ jenkins URL 使用默认就好（应该是服务器ip:8080）
 
 安装完成，剩下的就是配置项目了
 
+因为现在是命令窗口开着的，我ctrl+C后
+执行开机启动
+sudo systemctl enable jenkins
+提示
+jenkins.service is not a native service, redirecting to /sbin/chkconfig.
+Executing /sbin/chkconfig jenkins on
+
+但是我这样竟然成功启动了， 
+sudo systemctl start jenkins.service
+
+不过访问web提示的密码变了，我又重新安装一次插件。不知道这是不是正常现象
+
+
+
 
