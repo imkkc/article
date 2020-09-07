@@ -42,9 +42,9 @@ SVN authz 文件配置一般这两行就行了
 * = r 则表示“其他人只能读，不能写”
 
 小插曲：
-单独针对某一个目录给某人开设svn权限
+针对项目中某一子目录给某人开设svn权限
 [test1:/diary/headquarters]
-@g_headquarters = rw
+timi = rw
 
 
 开启多个版本库的svn 注意，输入根目录即可
