@@ -49,5 +49,6 @@ sudo /usr/bin/svnserve -d -r /var/www/svn
 客户端可以连接，输入账号 密码  checkout
 
 
-
+linux 下停止所有的svn服务
+sudo killall svnserve
 
