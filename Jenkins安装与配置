@@ -95,9 +95,15 @@ Remote Directory  设置服务器项目根目录
 配置 SSH Publishers 信息
     SSH server
     name 这一项会自动有选项，就是设置SSH Servers时候的Name
-    Transfers 我只填写Exec command：rsync -avz --exclude-from=/var/lib/jenkins/workspace/php-deploy/rsync-exclude.list  /var/lib/jenkins/workspace/php-deploy/  /www/php-deploy/
+    Transfers 我只填写Exec command：
+    rsync -avz --exclude-from=/var/lib/jenkins/workspace/php-deploy/rsync-exclude.list  /var/lib/jenkins/workspace/php-deploy/  /www/php-deploy/
 
 注意：这里有踩坑点
+
+总是出现：
+rsync: failed to set times on “directory” Operation not permitted (1)
+出现rsync: failed to set times on “xxxx”: Operation not permitted的原因大致是对文件夹（或文件）xxxx没有操作权限。
+
 
 首先解释下这个shell命令 rsync -avz --exclude-from=/var/lib/jenkins/workspace/php-deploy/rsync-exclude.list  /var/lib/jenkins/workspace/php-deploy/  /www/php-deploy/
 将 jenkins 下的php-deploy/ 同步到 服务器/www/php-deploy/
