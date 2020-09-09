@@ -1,0 +1,169 @@
+自动化部署--Jenkins--简介安装
+
+https://pkg.jenkins.io/redhat-stable/
+
+官方网站的安装操作提示，操作步骤太简单，一般没有成功的
+
+这里记录下成功的方法，感谢网络上分享笔记的朋友们！
+
+
+sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
+sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+
+yum install jenkins -y
+
+到这里官方文档就结束了  - -#
+
+启动
+sudo systemctl enable jenkins
+
+启动失败，提示
+jenkins.service is not a native service, redirecting to /sbin/chkconfig.
+Executing /sbin/chkconfig jenkins on
+
+网络上解决方法
+
+查看安装路径
+rpm -ql jenkins
+/etc/init.d/jenkins
+/usr/lib/jenkins           //Jenkins安装目录，war包存放于此
+/etc/sysconfig/jenkins     //Jenkins配置文件、端口、JENKINS_HOME等配置信息
+/var/lib/jenkins           //默认的JENKINS_HOME
+/var/log/jenkins           //Jenkins日志存放路径
+
+查看或修改启动端口，我没改，默认8080
+vim /etc/sysconfig/jenkins
+
+开启防火墙端口
+firewall-cmd --zone=public --add-port=8080/tcp --permanent
+
+刷新防火墙配置
+sudo firewall-cmd --reload
+
+启动Jenkins 
+sudo java -jar /usr/lib/jenkins/jenkins.war --httpPort=8081
+
+这时候界面里会有密码，用于web访问时候输入。感觉不记录也没关系，访问web页面会提示查询密码路径
+
+访问
+浏览器访问：http://你的服务器ip:8080/
+
+输入密码
+
+默认插件安装、比较慢(看网速) 像是九宫格的插件表，它会自己一个一个装，耐心等
+
+创建管理员、保存完成
+jenkins URL 使用默认就好（应该是服务器ip:8080）
+
+准备就绪、  欢迎来到 Jenkins!
+
+安装完成，剩下的就是配置项目了
+
+因为现在是命令窗口开着的，我ctrl+C后
+执行开机启动
+sudo systemctl enable jenkins
+提示
+jenkins.service is not a native service, redirecting to /sbin/chkconfig.
+Executing /sbin/chkconfig jenkins on
+
+但是我这样竟然成功启动了， 
+sudo systemctl start jenkins.service
+
+不过访问web提示的密码变了，我又重新安装一次插件.重新设置一次管理员和邮箱。
+不知道这是不是正常现象
+
+
+---------------------------------
+好了，下面记录下使用配置的踩坑
+
+正常情况已经安装推荐插件，但是要想连接服务器的话，需要设置SSH Servers
+菜单 -> 系统管理 -> 系统配置 -> SSH Servers
+但是如果没有安装ssh插件的话就找不到 SSH Servers这一项
+我是在插件管理搜索 SSH 安装的
+然后设置：
+Name              自定义名称，我觉得应该用项目名称，勾选时候会出现这个选项
+Hostname          服务器ip
+Username          服务器登录用户名
+Remote Directory  设置服务器项目根目录
+
+
+新创建项目：选自由风风格
+源码管理：  配置svn或者git信息
+构建：这个是最关键的，你可以打包源码发布到对应的服务器之上
+	
+选择 Send files or execute commands over SSH as a build step during the build
+配置 SSH Publishers 信息
+    SSH server
+    name 这一项会自动有选项，就是设置SSH Servers时候的Name
+    Transfers 我只填写Exec command：rsync -avz --exclude-from=/var/lib/jenkins/workspace/php-deploy/rsync-exclude.list  /var/lib/jenkins/workspace/php-deploy/  /www/php-deploy/
+
+注意：这里有踩坑点
+
+首先解释下这个shell命令 rsync -avz --exclude-from=/var/lib/jenkins/workspace/php-deploy/rsync-exclude.list  /var/lib/jenkins/workspace/php-deploy/  /www/php-deploy/
+将 jenkins 下的php-deploy/ 同步到 服务器/www/php-deploy/
+
+rsync（remote synchronize）是一个远程数据同步工具，可通过LAN/WAN快速同步多台主机间的文件。
+因为我的试验基地jenkins与代码服务器在同一台，所以属于本机代码同步。
+
+
+php自动部署其实主要分两步执行：
+1、构建：把svn代码仓库东西下载到jenkins，
+2、通过shell命令把jenkins从仓库里下载的文件同步到其他服务器上
+
+主要还是这个shell命令启动到同步作用，但是它需要所属主权限！！！！ 
+
+首先jenkins是调用服务器shell命令来执行同步的，
+那执行命令的用户到底是jenkins配置文件默认用户，还是配置SSH Servers连接服务器的那个用户 ？
+
+
+我登录服务器账号也不是root 每次安装东西都要sudo一下，所以执行命令应该使用服务器登录者，而不是jenkins配置文件里默认的
+
+网上有说将jenkins配置文件的$JENKINS_USER并更改为“root”：可以，我尝试过了，不行
+然后我shell前面加sudo 构建时候 sudo: no tty present and no askpass program specified
+最后我给sudo加了个免密好了
+1    打开sudoers
+vi /etc/sudoers
+2    添加免密码
+abc ALL = NOPASSWD: ALL
+
+奇怪，配置文件改为root竟然还要加sudo
+于是我把$JENKINS_USER并更改为ecofficialdev服务器登录账号，就是设置SSH Servers连接服务器的那个用户
+竟然可以了！！！！！  
+而且我把构建时候的shell命令sudo拿掉也行啦！！！
+
+1.打开此脚本（使用VIM或其他编辑器）：
+vim /etc/sysconfig/jenkins
+
+2.找到$JENKINS_USER并更改为“ecofficialdev”：
+$JENKINS_USER="ecofficialdev"
+
+3.然后更改Jenkins主页，webroot和日志的所有权：
+sudo chown -R ecofficialdev:ecofficialdev /var/lib/jenkins
+sudo chown -R ecofficialdev:ecofficialdev /var/cache/jenkins
+sudo chown -R ecofficialdev:ecofficialdev /var/log/jenkins
+
+4）重新启动Jenkins并检查用户是否已更改：
+ sudo systemctl restart jenkins
+ ps -ef | grep jenkins
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
