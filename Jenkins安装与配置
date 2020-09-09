@@ -78,14 +78,12 @@ sudo systemctl start jenkins.service
 
 正常情况已经安装推荐插件，但是要想连接服务器的话，需要设置SSH Servers
 菜单 -> 系统管理 -> 系统配置 -> SSH Servers
-但是如果没有安装ssh插件的话就找不到 SSH Servers这一项
-我是在插件管理搜索 SSH 安装的
-然后设置：
+前提是安装了SSH插件，不然找不到 SSH Servers这一项
+设置SSH Servers参数：
 Name              自定义名称，我觉得应该用项目名称，勾选时候会出现这个选项
 Hostname          服务器ip
 Username          服务器登录用户名
 Remote Directory  设置服务器项目根目录
-
 
 新创建项目：选自由风风格
 源码管理：  配置svn或者git信息
@@ -95,7 +93,7 @@ Remote Directory  设置服务器项目根目录
 配置 SSH Publishers 信息
     SSH server
     name 这一项会自动有选项，就是设置SSH Servers时候的Name
-    Transfers 我只填写Exec command：
+    Transfers 我只填写Exec command：这一项
     rsync -avz --exclude-from=/var/lib/jenkins/workspace/php-deploy/rsync-exclude.list  /var/lib/jenkins/workspace/php-deploy/  /www/php-deploy/
 
 注意：这里有踩坑点
@@ -105,71 +103,83 @@ rsync: failed to set times on “directory” Operation not permitted (1)
 出现rsync: failed to set times on “xxxx”: Operation not permitted的原因大致是对文件夹（或文件）xxxx没有操作权限。
 
 
-首先解释下这个shell命令 rsync -avz --exclude-from=/var/lib/jenkins/workspace/php-deploy/rsync-exclude.list  /var/lib/jenkins/workspace/php-deploy/  /www/php-deploy/
-将 jenkins 下的php-deploy/ 同步到 服务器/www/php-deploy/
+首先解释下这个shell命令 
+rsync -avz --exclude-from=/var/lib/jenkins/workspace/php-deploy/rsync-exclude.list  /var/lib/jenkins/workspace/php-deploy/  /www/php-deploy/
+将 jenkins 下的php-deploy/所有文件， 同步到 服务器/www/php-deploy/下
 
 rsync（remote synchronize）是一个远程数据同步工具，可通过LAN/WAN快速同步多台主机间的文件。
-因为我的试验基地jenkins与代码服务器在同一台，所以属于本机代码同步。
+因为我的试验基地jenkins与代码服务器在同一台，所以属于本机代码同步。同步到其他服务器写ip，命令贴在最下面
 
 
 php自动部署其实主要分两步执行：
-1、构建：把svn代码仓库东西下载到jenkins，
-2、通过shell命令把jenkins从仓库里下载的文件同步到其他服务器上
+1、构建：把svn代码仓库文件下载到jenkins，
+2、通过shell命令把jenkins上文件同步到服务器上
 
 主要还是这个shell命令启动到同步作用，但是它需要所属主权限！！！！ 
 
 首先jenkins是调用服务器shell命令来执行同步的，
 那执行命令的用户到底是jenkins配置文件默认用户，还是配置SSH Servers连接服务器的那个用户 ？
 
-
-我登录服务器账号也不是root 每次安装东西都要sudo一下，所以执行命令应该使用服务器登录者，而不是jenkins配置文件里默认的
+我登录服务器账号也不是root 每次安装东西都要sudo一下，
+但是jenkins上配置sudo rsync -avz ... 会报 sudo: no tty present and no askpass program specified
 
 网上有说将jenkins配置文件的$JENKINS_USER并更改为“root”：可以，我尝试过了，不行
-然后我shell前面加sudo 构建时候 sudo: no tty present and no askpass program specified
-最后我给sudo加了个免密好了
-1    打开sudoers
+然后我shell前面加sudo 构建时候依然 sudo: no tty present and no askpass program specified
+我给sudo加了个免密好了
 vi /etc/sudoers
-2    添加免密码
-abc ALL = NOPASSWD: ALL
+追加一行 ecofficialdev ALL = NOPASSWD: ALL
 
-奇怪，配置文件改为root竟然还要加sudo
-于是我把$JENKINS_USER并更改为ecofficialdev服务器登录账号，就是设置SSH Servers连接服务器的那个用户
+奇怪，配置文件改为root竟然还要加sudo 带着这个疑问
+我把$JENKINS_USER并更改为ecofficialdev服务器登录账号，就是设置SSH Servers连接服务器的那个用户
 竟然可以了！！！！！  
-而且我把构建时候的shell命令sudo拿掉也行啦！！！
+而且我把构建时候shell命令前面的sudo拿掉也行啦！！！
 
-1.打开此脚本（使用VIM或其他编辑器）：
-vim /etc/sysconfig/jenkins
-
-2.找到$JENKINS_USER并更改为“ecofficialdev”：
+更改Jenkins配置文件，在改Jenkins主页，webroot和日志的所有权：
+sudo vim /etc/sysconfig/jenkins
 $JENKINS_USER="ecofficialdev"
 
-3.然后更改Jenkins主页，webroot和日志的所有权：
+chown -R 用户名:组名 文件路径
 sudo chown -R ecofficialdev:ecofficialdev /var/lib/jenkins
 sudo chown -R ecofficialdev:ecofficialdev /var/cache/jenkins
 sudo chown -R ecofficialdev:ecofficialdev /var/log/jenkins
 
-4）重新启动Jenkins并检查用户是否已更改：
+重新启动Jenkins并检查用户是否已更改：
  sudo systemctl restart jenkins
  ps -ef | grep jenkins
 
+总结原因：
+可能是因为jenkins搭建在ecofficialdev的服务器上，服务器的登录和执行者是ecofficialdev，对目录有权限
+所以jenkins里配置shell命令的使用者是ecofficialdev就没问题，其实就连jenkins启动者也是ecofficialdev账号
 
 
+单独记录下rsync同步命令的使用
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+二、ssh模式
+1、本地间同步
+环境： 172.16.22.12
+# mkdir src
+# touch src/{1,2,3,4}
+# mkdir dest
+# rsync -av src/ dest/ --将 src 目录里的所有的文件同步至 dest 目录（不包含src本身）
+# rsync -av src dest/ --将 src 目录包括自己整个同步至 dest 目录
+# rsync -avR src/ dest/ --即使 src 后面接有 / ，效果同上
+2、局域网间同步
+环境： 172.16.22.11
+# mkdir src
+# touch src/{a,b,c,d}
+# mkdir dest
+# rsync -av 172.16.22.12:/data/test/src/ dest/ --远程同步至本地，需输入root密码
+# rsync -av src/ 172.16.22.12:/data/test/dest/ --本地文件同步至远程
+# rsync -av src 172.16.22.12:/data/test/dest/ --整个目录同步过去
+# rm -rf src/d --删除一个文件 d
+# rsync -av --delete src/ 172.16.22.12:/data/test/dest/ --delete，从目标目录里面删除无关的文件
+3、局域网指定用户同步
+--172.16.22.12
+# useradd george
+# passwd george
+# mkdir /home/george/test
+# touch /home/george/test/g{1,2,3,4}
+--172.16.22.11
+# rsync -av src '-e ssh -l george' 172.16.22.12:/home/george --本地同步至远程
+# rsync -av 172.16.22.12:/home/george/test/g* '-e ssh -l george -p 22' dest/
 
