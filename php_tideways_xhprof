@@ -1,0 +1,135 @@
+
+【安装tideways_xhprof】
+
+https://github.com/tideways/php-xhprof-extension
+
+sudo git clone "https://github.com/tideways/php-xhprof-extension.git"
+cd php-xhprof-extension/
+sudo /usr/bin/phpize
+sudo ./configure
+sudo make
+sudo make test
+sudo make install
+
+修改 php.ini
+extension=tideways_xhprof.so
+
+重启 php-fpm
+sudo systemctl restart php-fpm
+
+
+【tideways_xhprof 怎么用？】
+
+1、在入口文件首行（或者你要测试的区域也行，范围缩小了而已）
+tideways_xhprof_enable(TIDEWAYS_XHPROF_FLAGS_MEMORY | TIDEWAYS_XHPROF_FLAGS_CPU);
+
+2、然后在程序文件最末尾添加
+file_put_contents(
+    sys_get_temp_dir() . DIRECTORY_SEPARATOR. '111.myapplication.xhprof',
+    serialize(tideways_xhprof_disable())
+);
+
+然后当你访问接口的时候，在上面的目录下就会多出一个111.myapplication.xhprof文件
+
+踩坑1：
+这个文件名字结构必须是xxx.xxx.xhprof 因为xhprof统计界面左上角有这个名称对应
+Run Report
+Run #111: XHProf Run (Namespace=myapplication)
+
+踩坑2：
+sys_get_temp_dir()这个其实就是/tmp 要保证它有权限，
+在服务器上ls -al看不到这个文件，但是你用file_exist()检测的确有！
+打印这个file_put_contents的返回值，也的确是int(361)但是你就是看不到文件
+
+
+【tideways_xhprof 怎么看 ？】
+
+直接看文件是不行的，火眼金睛也看不明白，还是用xhprof来看吧
+
+sudo git clone https://github.com/phacility/xhprof
+
+然后配置nginx ：
+
+server {
+    listen 805;
+    #域名不用也行，直接ip+端口访问
+    server_name local.xhprof;
+    root /opt/xhprof/xhprof_html;
+    index index.html index.php;
+    location ~ \.php$ {
+        fastcgi_pass 127.0.0.1:9000;
+        fastcgi_index index.php;
+        include fastcgi.conf;
+    }
+}
+
+我看到这里突然意识到xhprof就是个php项目，有人说它不支持php7 不能pecl安装
+不过我按照作者的说法安装了，也能正常使用，
+将root指向/opt/xhprof/xhprof_html 为啥指向这里？ 因为它是个php项目
+
+sudo /usr/sbin/nginx -s reload
+
+然后就可以愉快的看表格化的性能数据了，哈哈，兄嘚别高兴得太早。xhprof没有php7的版本，如果你的环境是php7的话，还要在代码上加点调料。
+
+第一个：入口index.php文件
+增加一行，
+//就是你上面file_put_contents的那个目录
+$dir = "/home/www/html/xhprof_data/";
+//说修改这行我就懵了，之前笔者也没提到过这个，我只好看一下xhprof源码，还好是php的
+$xhprof_runs_impl = new XHProfRuns_Default($dir);
+后来发现不用改也行，因为源码里默认$dir = ini_get("xhprof.output_dir");
+if (empty($dir)) {
+ $dir = sys_get_temp_dir();
+ ........
+} 所以什么都不设置，它就会用sys_get_temp_dir目录
+
+
+第二个：xhprof_lib/utils/xhprof_lib.php文件：
+
+注释两行，
+//xhprof_error("Error in Raw Data: parent & child are both: $parent");
+//return;
+
+ 
+第三个：xhprof_lib/utils/xhprof_runs.php文件
+
+增加函数，
+//“<?php” 标签的下面增加一个function，不要加到类或接口里面哦:
+
+function yourFunction($a, $b) {
+      return filemtime($b) - filemtime($a);
+ }
+
+修改一行，
+usort($files, create_function('$a,$b', 'return filemtime($b) - filemtime($a);'));
+
+改为：
+usort($files, 'yourFunction');
+
+
+直接浏览器访问nginx设置的地址就好了，我果然看到，我把这3步骤都还原，不改xhprof任何东西一样能看到
+No XHProf runs specified in the URL.
+Existing runs:
+111.myapplication.xhprof 2020-09-15 06:11:34    //要点击这个文件才能显示性能分析
+
+表头字段含义：
+Function Name：方法名称。
+Calls：方法被调用的次数。
+Calls%：方法调用次数所占百分比。
+Incl.Wall Time(microsec)：方法执行花费的时间，包括子方法。
+IWall%：方法执行花费的时间百分比。
+Excl. Wall Time(microsec)：方法本身执行花费的时间，不包括子方法。
+EWall%：方法本身执行花费的时间百分比。
+Incl. CPU(microsecs)：方法执行花费的CPU时间，包括子方法。
+ICpu%：方法执行花费的CPU时间百分比。
+Excl. CPU(microsec)：方法本身执行花费的CPU时间，不包括子方法。
+ECPU%：方法本身执行花费的CPU时间百分比。
+Incl.MemUse(bytes)：方法执行占用的内存，包括子方法。
+IMemUse%：方法执行占用的内存百分比。
+Excl.MemUse(bytes)：方法本身执行占用的内存，不包括子方法。
+EMemUse%：方法本身执行占用的内存百分比。
+Incl.PeakMemUse(bytes)：Incl.MemUse峰值。
+IPeakMemUse%：Incl.MemUse峰值百分比。
+Excl.PeakMemUse(bytes)：Excl.MemUse峰值。
+EPeakMemUse%：Excl.MemUse峰值百分比。
+
