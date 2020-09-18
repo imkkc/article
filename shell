@@ -5,7 +5,7 @@ Shell中的$0、$1、$2的含义
 直接用示例说明：新建一个shell脚本 Test.sh, 内容如下：
 
 #!/bin/sh
-echo "shell脚本本身的名字: $0"
+echo "当前目录shell脚本本身的名字: $0"
 echo "传给shell的第一个参数: $1"
 echo "传给shell的第二个参数: $2"
 
@@ -16,3 +16,16 @@ echo "传给shell的第二个参数: $2"
 shell脚本本身的名字: Test.sh
 传给shell的第一个参数: 1
 传给shell的第二个参数: 2
+
+
+
+$0  这个表示的正真的含义是：当前运行的命令名，一般用于脚本中。
+dirname 输出已经去除了尾部的”/”字符部分的名称；如果名称中不包含”/”，则显示”.”(表示当前目录)。
+
+#/bin/bash
+echo "`dirname $0`"
+echo "$0"
+
+[yutao@master01 ~]$ ./test_files/love/test.sh 
+./test_files/love
+./test_files/love/test.sh
