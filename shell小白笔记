@@ -1,0 +1,18 @@
+Shell中的$0、$1、$2的含义
+
+在 shell 中我们会见到 $0、$1、$2这样的符号，这是什么意思呢?
+
+直接用示例说明：新建一个shell脚本 Test.sh, 内容如下：
+
+#!/bin/sh
+echo "shell脚本本身的名字: $0"
+echo "传给shell的第一个参数: $1"
+echo "传给shell的第二个参数: $2"
+
+保存退出后，你在Test.sh所在的目录下输入 bash Test.sh 1 2
+
+结果为:
+
+shell脚本本身的名字: Test.sh
+传给shell的第一个参数: 1
+传给shell的第二个参数: 2
