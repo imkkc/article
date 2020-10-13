@@ -1,0 +1,117 @@
+CentOS6.10下yum安装MySQL5.7
+
+注意你的centos系统是版本几，就要使用对应的源，不要跨越源的版本
+
+MySQL官网的Yum仓库快速指南：https://dev.mysql.com/doc/mysql-yum-repo-quick-guide/en/
+
+检查是否安装有MySQL数据库
+rpm -qa | grep mysql
+
+有的话，用 rpm -e 命令 或者 rpm -e --nodeps 命令卸载掉
+
+注意：MySQL相关的安装也一并卸载干净，如：系统自带的 mysql-libs-5.1.73-8.el6_8.x86_64 都有卸载掉
+
+rpm -e mysql　　# 普通删除模式
+
+rpm -e --nodeps mysql　　# 强力删除模式，如果使用上面命令删除时，提示有依赖的其它文件，则用该命令可以对其进行强力删除
+
+
+
+在删除完以后再通过 rpm -qa | grep mysql 命令来查看MySQL是否已经卸载干净！
+
+下载MySQL官网的 yum repository
+wget -c  http://dev.mysql.com/get/mysql57-community-release-el6-10.noarch.rpm
+
+
+
+本地安装下载下来的rpm包
+yum localinstall mysql57-community-release-el6-10.noarch.rpm
+
+
+
+查看可用的安装包
+yum repolist enabled |grep mysql
+
+
+
+安装前装gcc所有包，防止报错
+
+yum install gcc*
+
+安装mysql
+yum install -y mysql-community-server
+
+安装成功，显示如下：
+
+
+
+启动mysql
+service mysqld start
+
+查看状态：
+
+service mysqld status
+
+加入开机启动：
+
+chkconfig mysqld on
+
+
+
+配置数据库
+在 /etc/my.cnf 配置文件，写入以下配置：
+
+vim /etc/my.cnf
+
+# MySQL5.7默认对用户密码有密码强度要求，必须包含数字、小写字母、大写字母 、特殊字符，长度至少8位
+（关于MySQL5.7密码策略及修改技巧，可以参考这篇文章：https://www.jianshu.com/p/5779aa264840）
+
+# 禁用密码策略（为了学习时操作方便，这里选择禁用默认密码强度策略）
+validate_password = off
+# validate_password_policy = 0
+
+# 修改字符编码为utf8
+character_set_server = utf8
+init_connect = 'SET NAMES utf8'
+
+# 数据库是否区分大小写，0：区分大小写，1：不区分大小写
+lower_case_table_names=1
+
+
+
+保存退出！
+
+重启数据库，让配置文件生效
+
+service mysqld restart
+
+
+查看初始密码：
+
+grep 'temporary password' /var/log/mysqld.log
+
+进入数据库，输入刚查到的初始密码，如下图所示：
+
+mysql -u root -p
+
+修改root账号的密码为123456
+
+alter user 'root'@'localhost' identified by '123456';
+
+刷新权限
+
+flush privileges;
+
+
+
+退出数据库
+
+再次进入数据库，输入刚设置的密码123456
+
+查看数据库的字符集是否为配置的 utf8
+
+show variables like "%character%";show variables like "%collation%";
+
+
+
+ 
