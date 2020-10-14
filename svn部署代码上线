@@ -7,6 +7,12 @@
 
 yum install -y subversion
 
+svn list使用示例：
+svn list svn://192.168.231.1/SVNHome
+
+测试下svn仓库地址能不能用，这过程可能提示你输入账号密码啥的，保存完后续操作就不用了
+
+
 安装完后，使用和window上客户端一样道理：
 
 先创建/找到一个目录，例如：mkdir test
