@@ -1,0 +1,23 @@
+
+场景：在测试服务器上，安装svn客户端，可以使用checkout命令来部署代码，告别老套的ftp上传
+
+前提是你已经有了svn仓库地址、账号、密码
+
+1、在服务器上安装svn客户端，使用checkout命令检出文件
+
+yum install -y subversion
+
+安装完后，使用和window上客户端一样道理：
+
+先创建/找到一个目录，例如：mkdir test
+
+检出到test目录下
+
+svn checkout svn://192.168.231.1/SVNHome ./test
+
+它会提示你输入账号、密码 保存账号密码一类的
+
+这样test目录就和你项目里的一样了
+
+只要每次开发提交svn就好，下次部署代码在服务器上执行 svn update 就完成代码上线
+
