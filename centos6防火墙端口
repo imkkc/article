@@ -79,7 +79,69 @@ service iptables status
 
 
 
+二、常用命令
+（一）iptables防火墙常用命令
+1.查询防火墙状态
+service iptables status
 
+2.关闭防火墙
+service iptables stop
+
+3.开启防火墙
+service iptables start
+
+4.重启防火墙
+service iptables restart
+
+5.永久关闭防火墙
+chkconfig iptables off
+
+6.永久关闭后开启防火墙
+chkconfig iptables on
+
+7.查询当前iptables的规则
+iptables -L --line-numbers
+
+8.开放端口
+iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+
+9.关闭端口
+iptables -A INPUT -p tcp --dport 22 -j DROP
+
+注意：如果 /etc/sysconfig/iptables文件不存在，可以按如下方式配置一条防火墙规则：
+使用iptables命令随便写一条防火墙规则:iptables -P OUTPUT ACCEPT，
+然后使用service iptables save进行保存，
+默认就保存到了/etc/sysconfig目录下的iptables文件中。
+
+
+
+（二）Centos7 firewall防火墙常用命令
+1.查看防火墙状态：
+firewall-cmd --state
+
+2.启动防火墙
+systemctl start firewalld
+
+3.关闭防火墙
+systemctl stop firewalld
+
+4.检查防火墙开放的端口
+firewall-cmd --permanent --zone=public --list-ports
+
+5.开放一个新的端口
+firewall-cmd --zone=public --add-port=8080/tcp --permanent
+
+6.重启防火墙
+firewall-cmd --reload
+
+7.验证新增加端口是否生效
+firewall-cmd --zone=public --query-port=8080/tcp
+
+8.防火墙开机自启动
+systemctl enable firewalld.service
+
+9.防火墙取消某一开放端口
+firewall-cmd --zone=public --remove-port=9200/tcp --permanent service
 
 
 
