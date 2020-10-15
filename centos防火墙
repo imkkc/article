@@ -1,0 +1,50 @@
+centos7、
+从CentOS 7.x 以后，Red Hat 放弃了 init 启动脚本的方法，改用systemd 这个启动服务管理机制。
+sudo systemctl enable php-fpm.service
+另外针对端口号开启关闭，Centos7可以用firewalld命令
+Centos7默认安装了firewalld
+
+centos6
+service iptables status
+
+2003-can't connect to MYSQL server on'479496.122(10060)
+
+原因，没有开启3306端口；
+
+查看防火墙对外开放了哪些端口
+
+[root@hadoop110 ~]# iptables -L -n
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination         
+ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0           tcp dpt:3306 
+ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           state RELATED,ESTABLISHED
+
+在CentOS系统中防火墙默认是阻止3306端口的，我们要是想访问mysql数据库，我们需要这个端口，命令如下：
+/sbin/iptables -I INPUT -p tcp --dport 3306 -j ACCEPT
+我们需要保存我们的操作，命令如下：
+/etc/rc.d/init.d/iptables save
+/etc/sysconfig/iptables中会多了一行.
+
+此时我们可以查看端口的状态，命令如下
+/etc/init.d/iptables status
+
+这个是iptables的手册
+https://man.linuxde.net/iptables
+
+
+
+关闭虚拟机防火墙：
+
+关闭命令：  service iptables stop
+
+永久关闭防火墙：chkconfig iptables off
+
+两个命令同时运行，运行完成后查看防火墙关闭状态
+service iptables status
+
+1 关闭防火墙-----service iptables stop 
+2 启动防火墙-----service iptables start 
+3 重启防火墙-----service iptables restart 
+4 查看防火墙状态--service iptables status 
+5 永久关闭防火墙--chkconfig iptables off 
+6 永久关闭后启用--chkconfig iptables on
