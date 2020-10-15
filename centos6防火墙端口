@@ -8,11 +8,10 @@ centos6
 service iptables status
 
 2003-can't connect to MYSQL server on'479496.122(10060)
-
-原因，没有开启3306端口；
+mysql出现这个原因，没有开启3306端口；
 
 查看防火墙对外开放了哪些端口
-
+例如
 [root@hadoop110 ~]# iptables -L -n
 Chain INPUT (policy ACCEPT)
 target     prot opt source               destination         
@@ -21,6 +20,9 @@ ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           state RELATED,ESTAB
 
 在CentOS系统中防火墙默认是阻止3306端口的，我们要是想访问mysql数据库，我们需要这个端口，命令如下：
 /sbin/iptables -I INPUT -p tcp --dport 3306 -j ACCEPT
+
+INPUT链：处理输入数据包。
+
 我们需要保存我们的操作，命令如下：
 /etc/rc.d/init.d/iptables save
 /etc/sysconfig/iptables中会多了一行.
@@ -28,9 +30,34 @@ ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           state RELATED,ESTAB
 此时我们可以查看端口的状态，命令如下
 /etc/init.d/iptables status
 
+到此为止就就加完了，但是之前我用下面命令添加时无效的，不知道为什么
+iptables -A INPUT -p tcp --dport 3306 -j ACCEPT
+
+只有这个有效
+iptables -I INPUT -p tcp --dport 3306 -j ACCEPT
+
+参数解释：
+-A：向规则链中添加条目；
+-D：从规则链中删除条目；
+-i：向规则链中插入条目；
+
+cat /etc/sysconfig/iptables
+发现：
+参数 I 添加的在配置文件上面
+参数 A 添加的在配置文件下方
+
+
 这个是iptables的手册
 https://man.linuxde.net/iptables
 
+删除已添加的iptables规则：
+
+将所有iptables以序号标记显示，执行：
+
+iptables -L -n --line-numbers
+比如要删除INPUT里序号为8的规则，执行：
+
+iptables -D INPUT 8
 
 
 关闭虚拟机防火墙：
