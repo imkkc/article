@@ -1,11 +1,13 @@
-centos7、
-从CentOS 7.x 以后，Red Hat 放弃了 init 启动脚本的方法，改用systemd 这个启动服务管理机制。
-sudo systemctl enable php-fpm.service
-另外针对端口号开启关闭，Centos7可以用firewalld命令
-Centos7默认安装了firewalld
 
-centos6
-service iptables status
+一、 Centos6和Centos7 防火墙的区别
+使用的防火墙工具不：Centos6自带的防火墙工具是iptables ，Centos7自带的防火墙工具是firewall。
+
+iptables 用于过滤数据包，属于网络层防火墙。
+
+firewall 能够允许哪些服务可用，哪些端口可用，属于更高一层的防火墙。
+
+
+今天问题出现在centos6上
 
 2003-can't connect to MYSQL server on'479496.122(10060)
 mysql出现这个原因，没有开启3306端口；
@@ -63,7 +65,6 @@ iptables -D INPUT 8
 关闭虚拟机防火墙：
 
 关闭命令：  service iptables stop
-
 永久关闭防火墙：chkconfig iptables off
 
 两个命令同时运行，运行完成后查看防火墙关闭状态
@@ -75,3 +76,10 @@ service iptables status
 4 查看防火墙状态--service iptables status 
 5 永久关闭防火墙--chkconfig iptables off 
 6 永久关闭后启用--chkconfig iptables on
+
+
+
+
+
+
+
